@@ -1,0 +1,984 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>営業パイプライン | Spportunity</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f0f4fb;
+    --surface: #ffffff;
+    --surface2: #e8eef8;
+    --border: #d0daea;
+    --text: #1a2540;
+    --text-muted: #7a8fae;
+    --accent: #1e5fd4;
+
+    --stage1: #1e5fd4;
+    --stage2: #f59e0b;
+    --stage3: #ef4444;
+    --stage4: #ec4899;
+    --stage5: #10b981;
+    --stage6: #6366f1;
+    --stage7: #8b5cf6;
+    --stage8: #06b6d4;
+    --lost: #9ca3af;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Noto Sans JP', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: auto;
+  }
+
+  /* ヘッダー */
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 28px;
+    background: #1a2e6c;
+    border-bottom: 1px solid #162560;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    gap: 16px;
+  }
+
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .logo {
+    font-family: 'Space Mono', monospace;
+    font-size: 15px;
+    font-weight: 700;
+    color: #ffffff;
+    letter-spacing: -0.5px;
+    white-space: nowrap;
+  }
+
+  .header-title {
+    font-size: 14px;
+    color: rgba(255,255,255,0.6);
+    border-left: 1px solid rgba(255,255,255,0.2);
+    padding-left: 14px;
+  }
+
+  .header-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    padding: 8px 18px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-family: 'Noto Sans JP', sans-serif;
+    font-weight: 700;
+    cursor: pointer;
+    transition: opacity 0.15s;
+    white-space: nowrap;
+  }
+  .btn-primary:hover { opacity: 0.85; }
+
+  .btn-ghost {
+    background: transparent;
+    color: rgba(255,255,255,0.8);
+    border: 1px solid rgba(255,255,255,0.3);
+    padding: 7px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-family: 'Noto Sans JP', sans-serif;
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .btn-ghost:hover { color: #fff; border-color: rgba(255,255,255,0.7); }
+
+  /* サマリーバー */
+  .summary-bar {
+    display: flex;
+    gap: 24px;
+    padding: 12px 28px;
+    background: #1a2e6c;
+    border-bottom: 3px solid #d0daea;
+    overflow-x: auto;
+  }
+
+  .summary-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+  }
+
+  .summary-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+  }
+
+  .summary-label { font-size: 12px; color: rgba(255,255,255,0.7); }
+  .summary-count {
+    font-size: 13px;
+    font-weight: 700;
+    font-family: 'Space Mono', monospace;
+  }
+
+  /* ボード */
+  .board-wrap {
+    padding: 20px 28px 40px;
+  }
+
+  .board {
+    display: flex;
+    gap: 14px;
+    min-width: max-content;
+  }
+
+  /* カラム */
+  .column {
+    width: 250px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .column-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    cursor: default;
+  }
+
+  .column-header-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .stage-bar {
+    width: 4px;
+    height: 20px;
+    border-radius: 2px;
+  }
+
+  .column-name {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+  }
+
+  .column-count {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--text-muted);
+    background: var(--surface2);
+    padding: 2px 7px;
+    border-radius: 12px;
+  }
+
+  .column-body {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-height: 80px;
+    padding: 4px 0;
+  }
+
+  /* カード */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 13px 14px;
+    cursor: pointer;
+    transition: all 0.15s;
+    position: relative;
+    overflow: hidden;
+  }
+  .card::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+  }
+  .card:hover {
+    border-color: #a8bcdf;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 16px rgba(30,95,212,0.12);
+  }
+
+  .card-title {
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    line-height: 1.4;
+  }
+
+  .card-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 8px;
+  }
+
+  .tag {
+    font-size: 10px;
+    padding: 2px 7px;
+    border-radius: 4px;
+    background: var(--surface2);
+    color: var(--text-muted);
+    font-weight: 500;
+  }
+
+  .card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 8px;
+  }
+
+  .assignee {
+    font-size: 11px;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .avatar {
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--accent);
+  }
+
+  .progress-wrap {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 10px;
+  }
+
+  .progress-bar {
+    flex: 1;
+    height: 3px;
+    background: var(--surface2);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    border-radius: 2px;
+    transition: width 0.3s;
+  }
+
+  .progress-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--text-muted);
+    white-space: nowrap;
+  }
+
+  .amount-badge {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: #10b981;
+    font-weight: 700;
+  }
+
+  /* 追加カードボタン */
+  .add-card-btn {
+    width: 100%;
+    background: transparent;
+    border: 1px dashed var(--border);
+    color: var(--text-muted);
+    border-radius: 10px;
+    padding: 10px;
+    font-size: 12px;
+    font-family: 'Noto Sans JP', sans-serif;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+  .add-card-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: rgba(79,142,247,0.04);
+  }
+
+  /* モーダル */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(26,46,108,0.5);
+    z-index: 200;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .modal-overlay.open { display: flex; }
+
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    width: 100%;
+    max-width: 540px;
+    max-height: 90vh;
+    overflow-y: auto;
+    padding: 28px;
+    animation: slideUp 0.2s ease;
+  }
+
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+  }
+
+  .modal-title {
+    font-size: 16px;
+    font-weight: 900;
+  }
+
+  .modal-close {
+    background: var(--surface2);
+    border: none;
+    color: var(--text-muted);
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s;
+  }
+  .modal-close:hover { color: var(--text); background: #d0daea; }
+
+  .form-group {
+    margin-bottom: 18px;
+  }
+
+  .form-label {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-muted);
+    margin-bottom: 7px;
+    display: block;
+    letter-spacing: 0.5px;
+  }
+
+  .form-input, .form-select, .form-textarea {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 12px;
+    color: var(--text);
+    font-size: 13px;
+    font-family: 'Noto Sans JP', sans-serif;
+    transition: border-color 0.15s;
+    outline: none;
+  }
+  .form-input:focus, .form-select:focus, .form-textarea:focus {
+    border-color: var(--accent);
+  }
+  .form-select option { background: var(--surface2); }
+  .form-textarea { resize: vertical; min-height: 80px; }
+
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .modal-footer {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+  }
+
+  /* モーダル内のbtn-ghost を上書き（ライトモード） */
+  .modal .btn-ghost {
+    color: var(--text-muted);
+    border-color: var(--border);
+  }
+  .modal .btn-ghost:hover { color: var(--text); border-color: #a8bcdf; }
+
+  /* 詳細モーダル */
+  .detail-stage-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+    margin-bottom: 16px;
+  }
+
+  .detail-section {
+    margin-bottom: 20px;
+  }
+
+  .detail-section-title {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-muted);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .detail-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .detail-item { }
+  .detail-item-label { font-size: 11px; color: var(--text-muted); margin-bottom: 3px; }
+  .detail-item-value { font-size: 13px; font-weight: 500; }
+
+  .checklist { }
+
+  .checklist-stage { margin-bottom: 14px; }
+  .checklist-stage-name {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .checklist-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 0;
+    font-size: 13px;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: background 0.1s;
+  }
+  .checklist-item:hover { background: rgba(255,255,255,0.02); }
+
+  .checklist-item input[type="checkbox"] {
+    width: 15px; height: 15px;
+    cursor: pointer;
+    accent-color: var(--accent);
+  }
+
+  .checklist-item.done { color: var(--text-muted); text-decoration: line-through; }
+
+  .stage-select-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .stage-select-label { font-size: 13px; color: var(--text-muted); }
+
+  /* ドラッグ中 */
+  .card.dragging {
+    opacity: 0.4;
+  }
+  .column-body.drag-over {
+    background: rgba(79,142,247,0.05);
+    border-radius: 10px;
+  }
+
+  /* スクロールバー */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  /* 空状態 */
+  .empty-state {
+    text-align: center;
+    padding: 20px 10px;
+    color: var(--text-muted);
+    font-size: 12px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-left">
+    <div class="logo">SPPORTUNITY</div>
+    <div class="header-title">営業パイプライン</div>
+  </div>
+  <div class="header-actions">
+    <button class="btn-ghost" onclick="exportData()">📥 エクスポート</button>
+    <button class="btn-primary" onclick="openNewCaseModal()">＋ 新規案件</button>
+  </div>
+</header>
+
+<div class="summary-bar" id="summaryBar"></div>
+
+<div class="board-wrap">
+  <div class="board" id="board"></div>
+</div>
+
+<!-- 新規案件モーダル -->
+<div class="modal-overlay" id="newCaseModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">新規案件登録</div>
+      <button class="modal-close" onclick="closeModal('newCaseModal')">✕</button>
+    </div>
+    <div class="form-group">
+      <label class="form-label">チーム・選手名 *</label>
+      <input class="form-input" id="newName" placeholder="例：〇〇サッカークラブ" />
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">担当営業</label>
+        <input class="form-input" id="newAssignee" placeholder="例：五十嵐" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">認知経路</label>
+        <select class="form-select" id="newRoute">
+          <option value="紹介">紹介</option>
+          <option value="アウトバウンド">アウトバウンド</option>
+          <option value="インバウンド">インバウンド</option>
+          <option value="リピート">リピート（既存）</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">希望開始時期</label>
+        <input class="form-input" id="newStartDate" placeholder="例：2025/06" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">目標金額（万円）</label>
+        <input class="form-input" id="newAmount" type="number" placeholder="例：500" />
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">ステージ</label>
+      <select class="form-select" id="newStage">
+        <option value="0">1_ターゲティング</option>
+        <option value="1">2_アポ取り</option>
+        <option value="2">3_初回提案</option>
+        <option value="3">4_個別提案</option>
+        <option value="4">5_内諾</option>
+        <option value="5">6_受注</option>
+        <option value="6">7_社内Kickoff</option>
+        <option value="7">8_クライアントKickoff準備</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">メモ</label>
+      <textarea class="form-textarea" id="newMemo" placeholder="背景・資金使途・特記事項など"></textarea>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-ghost" onclick="closeModal('newCaseModal')">キャンセル</button>
+      <button class="btn-primary" onclick="addCase()">登録する</button>
+    </div>
+  </div>
+</div>
+
+<!-- 詳細モーダル -->
+<div class="modal-overlay" id="detailModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="detailTitle"></div>
+      <button class="modal-close" onclick="closeModal('detailModal')">✕</button>
+    </div>
+    <div id="detailContent"></div>
+    <div class="modal-footer">
+      <button class="btn-ghost" id="detailDeleteBtn" onclick="deleteCurrentCase()" style="color:#ef4444;border-color:#ef4444">削除</button>
+      <button class="btn-ghost" onclick="closeModal('detailModal')">閉じる</button>
+      <button class="btn-primary" onclick="saveDetail()">保存</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===== データ定義 =====
+const STAGES = [
+  { id: 0, name: "1_ターゲティング",        color: "#3b82f6", tasks: ["ターゲット選定","アタックリスト作成","コネクション探し・有無の判断"] },
+  { id: 1, name: "2_アポ取り",             color: "#f59e0b", tasks: ["案件管理表への記入（連絡先取得）","アポ獲得・打ち合わせ日時確定","概要資料送付"] },
+  { id: 2, name: "3_初回提案",             color: "#ef4444", tasks: ["スポチュニティ紹介・強みアピール","クラファンニーズ想起・課題把握","PJT基本情報収集（アンケート）","打ち合わせメモを営業チャンネルに投稿","動画格納（all_テレカン動画）"] },
+  { id: 3, name: "4_個別提案",             color: "#ec4899", tasks: ["提案書作成","コミットメント確認（稼働時間・ITリテラシー）","動画格納"] },
+  { id: 4, name: "5_内諾",                color: "#10b981", tasks: ["口頭合意取得・開始時期確定","宿題提案（KV・コラム・アカウント作成）","Asanaタスク作成","案件獲得を営業チャンネルへ周知（@channel）"] },
+  { id: 5, name: "6_受注",                color: "#6366f1", tasks: ["受注報告","SlackのPJTチャンネル作成","Google Driveフォルダ作成（社内・社外）","契約書送付（クラウドサイン）","契約締結完了"] },
+  { id: 6, name: "7_社内Kickoff",          color: "#8b5cf6", tasks: ["PJTメンバーへ情報共有・引継ぎ","Kickoff日程調整（実行者）","Slack（無料版）ワークスペース作成・招待","社外フォルダのアクセス権追加"] },
+  { id: 7, name: "8_クライアントKickoff準備", color: "#06b6d4", tasks: ["システム登録依頼（アカウント・チーム情報）","プロジェクト初期企画検討","実行者体制のFix"] },
+  { id: 8, name: "失注",                  color: "#6b7280", tasks: [] },
+];
+
+// サンプルデータ
+let cases = [
+  { id: 1, name: "〇〇フットボールクラブ", stage: 0, assignee: "五十嵐", route: "アウトバウンド", startDate: "2025/07", amount: 300, memo: "アタックリスト経由", checks: {} },
+  { id: 2, name: "△△バスケットボール協会", stage: 1, assignee: "大槻", route: "紹介", startDate: "2025/06", amount: 500, memo: "榎波さん紹介", checks: {} },
+  { id: 3, name: "◇◇野球クラブ", stage: 2, assignee: "五十嵐", route: "インバウンド", startDate: "2025/07", amount: 200, memo: "", checks: {} },
+  { id: 4, name: "☆☆ラグビースクール", stage: 3, assignee: "大槻", route: "紹介", startDate: "2025/08", amount: 400, memo: "グロービス経由", checks: {} },
+  { id: 5, name: "〇〇水泳クラブ", stage: 4, assignee: "五十嵐", route: "リピート", startDate: "2025/06", amount: 600, memo: "2回目利用", checks: { "口頭合意取得・開始時期確定": true } },
+  { id: 6, name: "△△陸上競技部", stage: 5, assignee: "大槻", route: "アウトバウンド", startDate: "2025/05", amount: 350, memo: "大学運動部", checks: { "受注報告": true, "SlackのPJTチャンネル作成": true } },
+];
+
+let nextId = 10;
+let currentDetailId = null;
+
+// ===== 描画 =====
+function render() {
+  renderSummary();
+  renderBoard();
+}
+
+function renderSummary() {
+  const bar = document.getElementById('summaryBar');
+  bar.innerHTML = '';
+  STAGES.forEach(stage => {
+    const count = cases.filter(c => c.stage === stage.id).length;
+    if (stage.id === 8 && count === 0) return;
+    const item = document.createElement('div');
+    item.className = 'summary-item';
+    item.innerHTML = `
+      <div class="summary-dot" style="background:${stage.color}"></div>
+      <span class="summary-label">${stage.name}</span>
+      <span class="summary-count" style="color:${stage.color}">${count}</span>
+    `;
+    bar.appendChild(item);
+  });
+}
+
+function renderBoard() {
+  const board = document.getElementById('board');
+  board.innerHTML = '';
+  STAGES.forEach(stage => {
+    const stageCases = cases.filter(c => c.stage === stage.id);
+    const col = document.createElement('div');
+    col.className = 'column';
+    col.innerHTML = `
+      <div class="column-header">
+        <div class="column-header-left">
+          <div class="stage-bar" style="background:${stage.color}"></div>
+          <span class="column-name">${stage.name}</span>
+        </div>
+        <span class="column-count">${stageCases.length}</span>
+      </div>
+      <div class="column-body" id="col-${stage.id}" 
+           ondragover="onDragOver(event, ${stage.id})"
+           ondragleave="onDragLeave(event)"
+           ondrop="onDrop(event, ${stage.id})">
+        ${stageCases.map(c => renderCard(c, stage)).join('')}
+        ${stageCases.length === 0 ? `<div class="empty-state">案件なし</div>` : ''}
+      </div>
+      ${stage.id < 8 ? `<button class="add-card-btn" onclick="openNewCaseModal(${stage.id})">＋ 追加</button>` : ''}
+    `;
+    board.appendChild(col);
+  });
+}
+
+function renderCard(c, stage) {
+  const totalTasks = stage.tasks.length;
+  const doneTasks = totalTasks > 0 ? stage.tasks.filter(t => c.checks[t]).length : 0;
+  const progress = totalTasks > 0 ? Math.round(doneTasks / totalTasks * 100) : 0;
+  const initials = c.assignee ? c.assignee.slice(0, 1) : '?';
+
+  return `
+    <div class="card" 
+         draggable="true"
+         ondragstart="onDragStart(event, ${c.id})"
+         ondragend="onDragEnd(event)"
+         onclick="openDetail(${c.id})"
+         style="--card-color:${stage.color}">
+      <div style="position:absolute;left:0;top:0;bottom:0;width:3px;background:${stage.color};border-radius:10px 0 0 10px"></div>
+      <div class="card-title" style="padding-left:4px">${c.name}</div>
+      <div class="card-meta">
+        <span class="tag">${c.route}</span>
+        ${c.startDate ? `<span class="tag">📅 ${c.startDate}</span>` : ''}
+      </div>
+      ${c.amount ? `<div class="amount-badge">¥${Number(c.amount).toLocaleString()}万</div>` : ''}
+      ${totalTasks > 0 ? `
+        <div class="progress-wrap">
+          <div class="progress-bar">
+            <div class="progress-fill" style="width:${progress}%;background:${stage.color}"></div>
+          </div>
+          <span class="progress-label">${doneTasks}/${totalTasks}</span>
+        </div>
+      ` : ''}
+      <div class="card-footer">
+        <div class="assignee">
+          <div class="avatar">${initials}</div>
+          <span>${c.assignee || '未割当'}</span>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+// ===== ドラッグ&ドロップ =====
+let dragId = null;
+
+function onDragStart(e, id) {
+  dragId = id;
+  e.target.classList.add('dragging');
+  e.dataTransfer.effectAllowed = 'move';
+}
+
+function onDragEnd(e) {
+  e.target.classList.remove('dragging');
+  document.querySelectorAll('.column-body').forEach(el => el.classList.remove('drag-over'));
+}
+
+function onDragOver(e, stageId) {
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'move';
+  document.getElementById('col-' + stageId).classList.add('drag-over');
+}
+
+function onDragLeave(e) {
+  e.currentTarget.classList.remove('drag-over');
+}
+
+function onDrop(e, stageId) {
+  e.preventDefault();
+  const c = cases.find(c => c.id === dragId);
+  if (c) {
+    c.stage = stageId;
+    c.checks = {}; // ステージ変更時はチェックをリセット
+    saveData();
+    render();
+  }
+}
+
+// ===== モーダル =====
+function openNewCaseModal(defaultStage = 0) {
+  document.getElementById('newName').value = '';
+  document.getElementById('newAssignee').value = '';
+  document.getElementById('newRoute').value = '紹介';
+  document.getElementById('newStartDate').value = '';
+  document.getElementById('newAmount').value = '';
+  document.getElementById('newMemo').value = '';
+  document.getElementById('newStage').value = defaultStage;
+  document.getElementById('newCaseModal').classList.add('open');
+}
+
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+}
+
+function addCase() {
+  const name = document.getElementById('newName').value.trim();
+  if (!name) { alert('チーム・選手名を入力してください'); return; }
+  cases.push({
+    id: nextId++,
+    name,
+    stage: parseInt(document.getElementById('newStage').value),
+    assignee: document.getElementById('newAssignee').value.trim(),
+    route: document.getElementById('newRoute').value,
+    startDate: document.getElementById('newStartDate').value.trim(),
+    amount: document.getElementById('newAmount').value || 0,
+    memo: document.getElementById('newMemo').value.trim(),
+    checks: {},
+  });
+  closeModal('newCaseModal');
+  saveData();
+  render();
+}
+
+// ===== 詳細モーダル =====
+function openDetail(id) {
+  currentDetailId = id;
+  const c = cases.find(c => c.id === id);
+  const stage = STAGES[c.stage];
+  document.getElementById('detailTitle').textContent = c.name;
+
+  let checklistHtml = '';
+  if (stage.tasks.length > 0) {
+    checklistHtml = `
+      <div class="detail-section">
+        <div class="detail-section-title">チェックリスト（${stage.name}）</div>
+        <div class="checklist">
+          ${stage.tasks.map((t, i) => `
+            <label class="checklist-item ${c.checks[t] ? 'done' : ''}">
+              <input type="checkbox" ${c.checks[t] ? 'checked' : ''} onchange="toggleCheck(${id}, '${t.replace(/'/g, "\\'")}', this.checked)" />
+              ${t}
+            </label>
+          `).join('')}
+        </div>
+      </div>
+    `;
+  }
+
+  document.getElementById('detailContent').innerHTML = `
+    <div class="detail-stage-badge" style="background:${stage.color}22;color:${stage.color}">
+      <span style="width:8px;height:8px;border-radius:50%;background:${stage.color};display:inline-block"></span>
+      ${stage.name}
+    </div>
+    <div class="stage-select-row">
+      <span class="stage-select-label">ステージ変更：</span>
+      <select class="form-select" id="detailStage" style="width:auto" onchange="changeStage(${id}, this.value)">
+        ${STAGES.filter(s => s.id < 8).map(s => `<option value="${s.id}" ${s.id === c.stage ? 'selected' : ''}>${s.name}</option>`).join('')}
+        <option value="8" ${c.stage === 8 ? 'selected' : ''}>失注</option>
+      </select>
+    </div>
+    <div class="detail-section">
+      <div class="detail-section-title">基本情報</div>
+      <div class="detail-grid">
+        <div class="detail-item">
+          <div class="detail-item-label">担当営業</div>
+          <input class="form-input" id="detailAssignee" value="${c.assignee}" />
+        </div>
+        <div class="detail-item">
+          <div class="detail-item-label">認知経路</div>
+          <select class="form-select" id="detailRoute">
+            ${['紹介','アウトバウンド','インバウンド','リピート'].map(r => `<option ${c.route===r?'selected':''}>${r}</option>`).join('')}
+          </select>
+        </div>
+        <div class="detail-item">
+          <div class="detail-item-label">希望開始時期</div>
+          <input class="form-input" id="detailStartDate" value="${c.startDate}" placeholder="例：2025/06" />
+        </div>
+        <div class="detail-item">
+          <div class="detail-item-label">目標金額（万円）</div>
+          <input class="form-input" id="detailAmount" type="number" value="${c.amount}" />
+        </div>
+      </div>
+    </div>
+    <div class="detail-section">
+      <div class="detail-section-title">メモ・特記事項</div>
+      <textarea class="form-textarea" id="detailMemo">${c.memo}</textarea>
+    </div>
+    ${checklistHtml}
+  `;
+
+  document.getElementById('detailModal').classList.add('open');
+}
+
+function toggleCheck(id, task, checked) {
+  const c = cases.find(c => c.id === id);
+  if (checked) c.checks[task] = true;
+  else delete c.checks[task];
+
+  // チェックリストのスタイル更新
+  const items = document.querySelectorAll('.checklist-item');
+  items.forEach(item => {
+    const cb = item.querySelector('input[type="checkbox"]');
+    if (cb && cb.onchange) {
+      item.classList.toggle('done', cb.checked);
+    }
+  });
+  items.forEach(item => {
+    const cb = item.querySelector('input[type="checkbox"]');
+    if (cb) item.classList.toggle('done', cb.checked);
+  });
+
+  saveData();
+  renderSummary();
+}
+
+function changeStage(id, stageId) {
+  const c = cases.find(c => c.id === id);
+  c.stage = parseInt(stageId);
+  c.checks = {};
+  saveData();
+  render();
+  closeModal('detailModal');
+}
+
+function saveDetail() {
+  const c = cases.find(c => c.id === currentDetailId);
+  c.assignee = document.getElementById('detailAssignee').value.trim();
+  c.route = document.getElementById('detailRoute').value;
+  c.startDate = document.getElementById('detailStartDate').value.trim();
+  c.amount = document.getElementById('detailAmount').value || 0;
+  c.memo = document.getElementById('detailMemo').value.trim();
+  saveData();
+  render();
+  closeModal('detailModal');
+}
+
+function deleteCurrentCase() {
+  if (!confirm('この案件を削除しますか？')) return;
+  cases = cases.filter(c => c.id !== currentDetailId);
+  saveData();
+  render();
+  closeModal('detailModal');
+}
+
+// ===== データ保存/読込 =====
+function saveData() {
+  try { localStorage.setItem('sp_cases', JSON.stringify(cases)); } catch(e) {}
+}
+
+function loadData() {
+  try {
+    const saved = localStorage.getItem('sp_cases');
+    if (saved) cases = JSON.parse(saved);
+  } catch(e) {}
+}
+
+// ===== エクスポート =====
+function exportData() {
+  const rows = [['ID','チーム・選手名','ステージ','担当営業','認知経路','開始時期','目標金額(万)','メモ']];
+  cases.forEach(c => {
+    rows.push([c.id, c.name, STAGES[c.stage].name, c.assignee, c.route, c.startDate, c.amount, c.memo]);
+  });
+  const csv = rows.map(r => r.map(v => `"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const blob = new Blob(['\uFEFF'+csv], { type: 'text/csv;charset=utf-8;' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `sales_pipeline_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+}
+
+// モーダル外クリックで閉じる
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+  overlay.addEventListener('click', e => {
+    if (e.target === overlay) overlay.classList.remove('open');
+  });
+});
+
+// 起動
+loadData();
+render();
+</script>
+</body>
+</html>
